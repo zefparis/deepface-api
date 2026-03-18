@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: deepface-api
+    runtime: docker
+    plan: standard  # min 1GB RAM pour les modèles ML
+    healthCheckPath: /health
+    envVars:
+      - key: ENV
+        value: production
+      - key: API_SECRET_KEY
+        generateValue: true
+      - key: DEFAULT_MODEL
+        value: ArcFace
+      - key: DEFAULT_DETECTOR
+        value: retinaface
+      - key: ALLOWED_ORIGINS
+        value: "https://yourdomain.com"
