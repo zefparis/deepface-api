@@ -27,52 +27,71 @@ class DeepFaceService:
     ) -> Dict[str, Any]:
         DeepFace = self._get_deepface()
 
-        # --- Attributes (age, gender, emotion) ---
+        try:
+            faces = DeepFace.extract_faces(
+                img_path=img,
+                detector_backend=settings.DEFAULT_DETECTOR,
+                anti_spoofing=True,
+                enforce_detection=True,
+            )
+        except Exception:
+            return {
+                "success": True,
+                "face_detected": False,
+                "liveness": None,
+                "liveness_score": None,
+                "age": None,
+                "gender": None,
+                "emotion": None,
+                "embedding": None,
+            }
+
+        if not faces:
+            return {
+                "success": True,
+                "face_detected": False,
+                "liveness": None,
+                "liveness_score": None,
+                "age": None,
+                "gender": None,
+                "emotion": None,
+                "embedding": None,
+            }
+
+        face = faces[0]
+        face_detected = True
+        antispoof_score = face.get("antispoof_score", 0.5)
+        liveness_score = float(0.5 if antispoof_score is None else antispoof_score)
+        liveness = liveness_score >= settings.LIVENESS_THRESHOLD
+
+        age = gender = emotion = None
         try:
             attrs = DeepFace.analyze(
                 img_path=img,
                 actions=["age", "gender", "emotion"],
                 detector_backend=settings.DEFAULT_DETECTOR,
-                enforce_detection=True,
+                enforce_detection=False,
                 silent=True,
             )
             attr = attrs[0] if isinstance(attrs, list) else attrs
-            face_detected = True
             age = int(attr.get("age", 0))
             gender = attr.get("dominant_gender", None)
             emotion = attr.get("dominant_emotion", None)
         except Exception:
-            face_detected = False
-            age = gender = emotion = None
+            pass
 
-        # --- Liveness / anti-spoofing ---
-        liveness = None
-        liveness_score = None
-        if face_detected:
-            try:
-                result = DeepFace.extract_faces(
-                    img_path=img,
-                    detector_backend=settings.DEFAULT_DETECTOR,
-                    anti_spoofing=True,
-                    enforce_detection=True,
-                )
-                if result:
-                    liveness_score = float(result[0].get("antispoof_score", 0.5))
-                    liveness = liveness_score >= settings.LIVENESS_THRESHOLD
-            except Exception:
-                pass
-
-        # --- Embedding ---
         embedding = None
-        if extract_embedding and face_detected:
+        if extract_embedding:
             try:
                 emb_result = DeepFace.represent(
                     img_path=img,
                     model_name=model,
                     detector_backend=settings.DEFAULT_DETECTOR,
-                    enforce_detection=True,
+                    enforce_detection=False,
                 )
                 embedding = emb_result[0]["embedding"] if emb_result else None
+                if hasattr(embedding, "tolist"):
+                    embedding = embedding.tolist()
             except Exception:
                 pass
 
@@ -86,6 +105,34 @@ class DeepFaceService:
             "emotion": emotion,
             "embedding": embedding,
         }
+
+    def warmup(self) -> None:
+        """
+        Pre-load all ML models into memory on startup.
+        Called once — eliminates cold-start latency on first request.
+        """
+        try:
+            DeepFace = self._get_deepface()
+            dummy = np.zeros((100, 100, 3), dtype=np.uint8)
+
+            try:
+                DeepFace.extract_faces(
+                    img_path=dummy,
+                    detector_backend=settings.DEFAULT_DETECTOR,
+                    anti_spoofing=False,
+                    enforce_detection=False,
+                )
+            except Exception:
+                pass
+
+            try:
+                DeepFace.build_model("ArcFace")
+            except Exception:
+                pass
+
+            print("✅ DeepFace models warmed up")
+        except Exception as e:
+            print(f"⚠️  Warmup failed: {e}")
 
     def verify(
         self,
@@ -119,3 +166,13 @@ class DeepFaceService:
             "threshold": threshold,
             "model": model,
         }
+
+
+_instance: Optional["DeepFaceService"] = None
+
+
+def get_deepface_service() -> "DeepFaceService":
+    global _instance
+    if _instance is None:
+        _instance = DeepFaceService()
+    return _instance

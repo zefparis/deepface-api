@@ -1,7 +1,9 @@
+import asyncio
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import analyze, health
 from app.core.config import settings
+from app.services.deepface_service import get_deepface_service
 
 app = FastAPI(
     title="DeepFace API",
@@ -17,6 +19,13 @@ app.add_middleware(
     allow_methods=["POST", "GET"],
     allow_headers=["*"],
 )
+
+
+@app.on_event("startup")
+async def startup_event():
+    service = get_deepface_service()
+    loop = asyncio.get_running_loop()
+    await loop.run_in_executor(None, service.warmup)
 
 app.include_router(health.router, prefix="/health", tags=["health"])
 app.include_router(analyze.router, prefix="/analyze", tags=["analyze"])

@@ -1,3 +1,5 @@
+import asyncio
+from functools import partial
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional
@@ -8,10 +10,9 @@ import time
 
 from app.core.security import require_api_key
 from app.core.config import settings
-from app.services.deepface_service import DeepFaceService
+from app.services.deepface_service import get_deepface_service
 
 router = APIRouter()
-service = DeepFaceService()
 
 
 # ─── Schemas ─────────────────────────────────────────────────────────────────
@@ -63,10 +64,16 @@ async def analyze(req: AnalyzeRequest):
     t0 = time.time()
     try:
         img = _decode_image(req.image_b64)
-        result = service.analyze(
-            img,
-            model=req.model or settings.DEFAULT_MODEL,
-            extract_embedding=req.extract_embedding,
+        service = get_deepface_service()
+        loop = asyncio.get_running_loop()
+        result = await loop.run_in_executor(
+            None,
+            partial(
+                service.analyze,
+                img,
+                req.model or settings.DEFAULT_MODEL,
+                req.extract_embedding,
+            ),
         )
         return AnalyzeResponse(
             **result,
@@ -88,9 +95,16 @@ async def verify(req: VerifyRequest):
     try:
         img1 = _decode_image(req.image1_b64)
         img2 = _decode_image(req.image2_b64)
-        result = service.verify(
-            img1, img2,
-            model=req.model or settings.DEFAULT_MODEL,
+        service = get_deepface_service()
+        loop = asyncio.get_running_loop()
+        result = await loop.run_in_executor(
+            None,
+            partial(
+                service.verify,
+                img1,
+                img2,
+                req.model or settings.DEFAULT_MODEL,
+            ),
         )
         return VerifyResponse(
             **result,

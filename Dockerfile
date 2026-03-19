@@ -11,7 +11,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Pre-download DeepFace models at build time (évite le cold start)
-RUN python -c "from deepface import DeepFace; DeepFace.build_model('ArcFace')"
+RUN python -c "from deepface import DeepFace; DeepFace.build_model('ArcFace'); import cv2"
 
 COPY . .
 

@@ -16,7 +16,7 @@ class Settings(BaseSettings):
 
     # DeepFace defaults
     DEFAULT_MODEL: str = "ArcFace"
-    DEFAULT_DETECTOR: str = "retinaface"
+    DEFAULT_DETECTOR: str = "opencv"
     DEFAULT_METRIC: str = "cosine"
     LIVENESS_THRESHOLD: float = 0.5
     VERIFICATION_THRESHOLD: float = 0.68
