@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     DEFAULT_METRIC: str = "cosine"
     LIVENESS_THRESHOLD: float = 0.5
     VERIFICATION_THRESHOLD: float = 0.68
+    ENABLE_DEEPFACE_WARMUP: bool = False
 
     class Config:
         env_file = ".env"

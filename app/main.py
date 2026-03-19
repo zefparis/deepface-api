@@ -23,9 +23,10 @@ app.add_middleware(
 
 @app.on_event("startup")
 async def startup_event():
-    service = get_deepface_service()
-    loop = asyncio.get_running_loop()
-    await loop.run_in_executor(None, service.warmup)
+    if settings.ENABLE_DEEPFACE_WARMUP:
+        service = get_deepface_service()
+        loop = asyncio.get_running_loop()
+        await loop.run_in_executor(None, service.warmup)
 
 app.include_router(health.router, prefix="/health", tags=["health"])
 app.include_router(analyze.router, prefix="/analyze", tags=["analyze"])
