@@ -17,6 +17,19 @@ Header requis sur tous les endpoints sauf `/health` :
 X-API-Key: <votre_clé>
 ```
 
+En production, vous pouvez aussi activer la signature HMAC serveur-à-serveur :
+```bash
+X-Timestamp: <unix_timestamp>
+X-Signature: sha256=<hmac_sha256>
+```
+
+Le service renvoie aussi `X-Request-ID` sur chaque réponse.
+
+## Health
+
+- `GET /health` — status rapide
+- `GET /health?detailed=true` — statut détaillé, modèles chargés, détecteur, uptime
+
 ## Démarrage local
 
 ```bash
@@ -32,6 +45,7 @@ Swagger UI disponible sur : http://localhost:8000/docs
 ```bash
 # Push le repo, connecter à Render, utiliser render.yaml
 # Le Dockerfile pré-télécharge les modèles ArcFace au build
+# Default prod: opencv detector, HMAC activable, warmup désactivé par défaut
 ```
 
 ## Intégration HCS-U7 (TypeScript)

@@ -35,28 +35,10 @@ class DeepFaceService:
                 enforce_detection=True,
             )
         except Exception:
-            return {
-                "success": True,
-                "face_detected": False,
-                "liveness": None,
-                "liveness_score": None,
-                "age": None,
-                "gender": None,
-                "emotion": None,
-                "embedding": None,
-            }
+            return self._no_face_response(status="no_face")
 
         if not faces:
-            return {
-                "success": True,
-                "face_detected": False,
-                "liveness": None,
-                "liveness_score": None,
-                "age": None,
-                "gender": None,
-                "emotion": None,
-                "embedding": None,
-            }
+            return self._no_face_response(status="no_face")
 
         face = faces[0]
         face_detected = True
@@ -104,6 +86,20 @@ class DeepFaceService:
             "gender": gender,
             "emotion": emotion,
             "embedding": embedding,
+            "_internal_status": "ok",
+        }
+
+    def _no_face_response(self, status: str = "no_face") -> Dict[str, Any]:
+        return {
+            "success": True,
+            "face_detected": False,
+            "liveness": None,
+            "liveness_score": None,
+            "age": None,
+            "gender": None,
+            "emotion": None,
+            "embedding": None,
+            "_internal_status": status,
         }
 
     def warmup(self) -> None:

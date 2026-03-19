@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.routers import analyze, health
 from app.core.config import settings
+from app.core.middleware import RequestSecurityMiddleware
 from app.services.deepface_service import get_deepface_service
 
 app = FastAPI(
@@ -19,6 +20,8 @@ app.add_middleware(
     allow_methods=["POST", "GET"],
     allow_headers=["*"],
 )
+
+app.add_middleware(RequestSecurityMiddleware)
 
 
 @app.on_event("startup")

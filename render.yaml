@@ -12,6 +12,12 @@ services:
       - key: DEFAULT_MODEL
         value: ArcFace
       - key: DEFAULT_DETECTOR
-        value: retinaface
+        value: opencv
+      - key: ENABLE_DEEPFACE_WARMUP
+        value: "false"
+      - key: REQUIRE_HMAC
+        value: "true"
+      - key: HMAC_SECRET
+        generateValue: true
       - key: ALLOWED_ORIGINS
         value: "https://yourdomain.com"
