@@ -56,6 +56,7 @@ class VerifyRequest(BaseModel):
 class AnalyzeResponse(BaseModel):
     success: bool
     face_detected: bool
+    confidence: float = 0.0
     liveness: Optional[bool] = None
     liveness_score: Optional[float] = None
     age: Optional[int] = None

@@ -38,6 +38,7 @@ class Settings(BaseSettings):
     DEFAULT_MODEL: str = "ArcFace"
     DEFAULT_DETECTOR: str = "opencv"
     DEFAULT_METRIC: str = "cosine"
+    ANTI_SPOOFING: bool = False
     LIVENESS_THRESHOLD: float = 0.5
     VERIFICATION_THRESHOLD: float = 0.68
     ENABLE_DEEPFACE_WARMUP: bool = False

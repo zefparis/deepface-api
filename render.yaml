@@ -14,7 +14,7 @@ services:
       - key: DEFAULT_DETECTOR
         value: opencv
       - key: ENABLE_DEEPFACE_WARMUP
-        value: "false"
+        value: "true"
       - key: REQUIRE_HMAC
         value: "true"
       - key: HMAC_SECRET
