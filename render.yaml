@@ -25,5 +25,7 @@ services:
         value: "true"
       - key: HMAC_SECRET
         generateValue: true
+      - key: MALLOC_TRIM_THRESHOLD_
+        value: "65536"
       - key: ALLOWED_ORIGINS
         value: "https://yourdomain.com"

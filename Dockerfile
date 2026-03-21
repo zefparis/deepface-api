@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ENV CUDA_VISIBLE_DEVICES=""
 ENV TF_CPP_MIN_LOG_LEVEL=3
 ENV TF_ENABLE_ONEDNN_OPTS=0
+# Limit TF memory allocation — prevents OOM on 2GB instances
+ENV MALLOC_TRIM_THRESHOLD_=65536
 
 WORKDIR /app
 

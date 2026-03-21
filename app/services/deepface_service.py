@@ -53,22 +53,6 @@ class DeepFaceService:
 
         liveness = liveness_score >= settings.LIVENESS_THRESHOLD
 
-        age = gender = emotion = None
-        try:
-            attrs = DeepFace.analyze(
-                img_path=img,
-                actions=["age", "gender", "emotion"],
-                detector_backend=settings.DEFAULT_DETECTOR,
-                enforce_detection=False,
-                silent=True,
-            )
-            attr = attrs[0] if isinstance(attrs, list) else attrs
-            age = int(attr.get("age", 0))
-            gender = attr.get("dominant_gender", None)
-            emotion = attr.get("dominant_emotion", None)
-        except Exception:
-            pass
-
         embedding = None
         if extract_embedding:
             try:
@@ -90,9 +74,9 @@ class DeepFaceService:
             "confidence": confidence,
             "liveness": liveness,
             "liveness_score": liveness_score,
-            "age": age,
-            "gender": gender,
-            "emotion": emotion,
+            "age": None,
+            "gender": None,
+            "emotion": None,
             "embedding": embedding,
             "_internal_status": "ok",
         }
