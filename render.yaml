@@ -14,7 +14,13 @@ services:
       - key: DEFAULT_DETECTOR
         value: opencv
       - key: ENABLE_DEEPFACE_WARMUP
-        value: "true"
+        value: "false"
+      - key: CUDA_VISIBLE_DEVICES
+        value: ""
+      - key: TF_CPP_MIN_LOG_LEVEL
+        value: "3"
+      - key: TF_ENABLE_ONEDNN_OPTS
+        value: "0"
       - key: REQUIRE_HMAC
         value: "true"
       - key: HMAC_SECRET

@@ -113,29 +113,12 @@ class DeepFaceService:
 
     def warmup(self) -> None:
         """
-        Pre-load all ML models into memory on startup.
-        Called once — eliminates cold-start latency on first request.
+        Lightweight warmup — only import DeepFace (triggers TF init).
+        Full model loading deferred to first request to stay under 512MB.
         """
         try:
-            DeepFace = self._get_deepface()
-            dummy = np.zeros((100, 100, 3), dtype=np.uint8)
-
-            try:
-                DeepFace.extract_faces(
-                    img_path=dummy,
-                    detector_backend=settings.DEFAULT_DETECTOR,
-                    anti_spoofing=False,
-                    enforce_detection=False,
-                )
-            except Exception:
-                pass
-
-            try:
-                DeepFace.build_model("ArcFace")
-            except Exception:
-                pass
-
-            print("✅ DeepFace models warmed up")
+            self._get_deepface()
+            print("✅ DeepFace imported (models load on first request)")
         except Exception as e:
             print(f"⚠️  Warmup failed: {e}")
 
